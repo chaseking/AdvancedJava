@@ -10,14 +10,14 @@ public enum CarStatus implements CarFilter {
     AVAILABLE("Available", FinalProject.LIGHT_GREEN){
         @Override
         public boolean willShow(Car car){
-            return car.getRentedTo() == null;
+            return car.getRent() == null;
         }
     },
 
     RENTED("Rented", FinalProject.PURPLE){
         @Override
         public boolean willShow(Car car){
-            return car.getRentedTo() != null;
+            return car.getRent() != null;
         }
     };
 

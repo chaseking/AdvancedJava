@@ -16,8 +16,10 @@ import me.chaseking.advancedjava.finalproject.car.Car;
 import me.chaseking.advancedjava.finalproject.car.CarFilter;
 import me.chaseking.advancedjava.finalproject.car.CarStatus;
 import me.chaseking.advancedjava.finalproject.car.CarType;
+import me.chaseking.advancedjava.finalproject.database.LoadCarsTask;
 import me.chaseking.advancedjava.finalproject.pane.AddCarPane;
 import me.chaseking.advancedjava.finalproject.pane.CarsPaneTextBox;
+import me.chaseking.advancedjava.finalproject.pane.LookupUserPane;
 
 /**
  * @author Chase King
@@ -29,6 +31,26 @@ public class Employee extends User {
 
     public Employee(){
         super("Employee");
+
+        FinalProject.get().updateCallback = () -> {
+            carsPane.getChildren().clear();
+
+            if(false /*LoadCarsTask.INSTANCE.isRunning()*/){
+                carsPane.getChildren().add(CarsPaneTextBox.LOADING);
+            } else if(FinalProject.get().getCars() == null){
+                carsPane.getChildren().add(CarsPaneTextBox.FAILED);
+            } else {
+                for(Car car : FinalProject.get().getCars()){
+                    if(carsPaneFilter.getValue().willShow(car)){
+                        carsPane.getChildren().add(car);
+                    }
+                }
+
+                if(carsPane.getChildren().isEmpty()){
+                    carsPane.getChildren().add(CarsPaneTextBox.NONE_TO_SHOW);
+                }
+            }
+        };
 
         //Top section
         Button addButton = FinalProject.button("Add", event -> {
@@ -44,16 +66,25 @@ public class Employee extends User {
             stage.show();
         });
 
-        Button refreshButton = FinalProject.button("Refresh", event -> {
-            FinalProject.get().loadCars();
-            updateCarsPane();
+        Button refreshButton = FinalProject.button("Refresh", event -> FinalProject.get().loadCars());
+
+        Button lookupUserButton = FinalProject.button("Lookup User", event -> {
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL); //Block other windows
+            stage.initOwner(FinalProject.get().getPrimaryStage());
+            stage.setResizable(false);
+            stage.setTitle("Lookup User");
+
+            Scene scene = new Scene(new LookupUserPane(stage), LookupUserPane.WIDTH, LookupUserPane.HEIGHT);
+
+            stage.setScene(scene);
+            stage.show();
         });
 
         carsPane = new TilePane(Orientation.HORIZONTAL, 20, 20);
         carsPane.setAlignment(Pos.TOP_LEFT);
         carsPane.setPadding(new Insets(5, 0, 0, 0)); //A little extra space from menu above
         //carsPane.hgapProperty().bind(carsPane.widthProperty().divide(10)); //TODO - Alter spacing based on window size?
-        updateCarsPane();
 
         carsPaneFilter = new ChoiceBox<>();
 
@@ -63,11 +94,11 @@ public class Employee extends User {
         carsPaneFilter.getItems().addAll(CarStatus.values());
         carsPaneFilter.setValue(carsPaneFilter.getItems().get(0));
 
-        carsPaneFilter.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateCarsPane());
+        carsPaneFilter.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> FinalProject.get().updatePane());
 
         centerPane = new VBox(5,
                 FinalProject.label("Viewing rental cars:", 18),
-                new HBox(10, FinalProject.label("Filter:"), carsPaneFilter, addButton, refreshButton),
+                new HBox(10, FinalProject.label("Filter:"), carsPaneFilter, addButton, refreshButton, lookupUserButton),
                 carsPane);
 
         centerPane.setPadding(new Insets(FinalProject.PADDING / 2, FinalProject.PADDING, FinalProject.PADDING, FinalProject.PADDING));
@@ -77,25 +108,5 @@ public class Employee extends User {
     @Override
     public VBox getPane(){
         return centerPane;
-    }
-
-    public void updateCarsPane(){
-        carsPane.getChildren().clear();
-
-        if(FinalProject.get().getUpdateService() == null || FinalProject.get().getUpdateService().isRunning()){
-            carsPane.getChildren().add(CarsPaneTextBox.LOADING);
-        } else if(FinalProject.get().getCars() == null){
-            carsPane.getChildren().add(CarsPaneTextBox.FAILED);
-        } else {
-            for(Car car : FinalProject.get().getCars()){
-                if(carsPaneFilter.getValue().willShow(car)){
-                    carsPane.getChildren().add(car);
-                }
-            }
-
-            if(carsPane.getChildren().isEmpty()){
-                carsPane.getChildren().add(CarsPaneTextBox.NONE_TO_SHOW);
-            }
-        }
     }
 }

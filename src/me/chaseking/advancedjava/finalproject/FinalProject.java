@@ -13,12 +13,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import me.chaseking.advancedjava.finalproject.car.Car;
-import me.chaseking.advancedjava.finalproject.database.CarUpdateService;
+import me.chaseking.advancedjava.finalproject.database.Database;
+import me.chaseking.advancedjava.finalproject.database.LoadCarsTask;
 import me.chaseking.advancedjava.finalproject.user.Customer;
 import me.chaseking.advancedjava.finalproject.user.Employee;
 import me.chaseking.advancedjava.finalproject.user.User;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * @author Chase King
@@ -43,17 +47,22 @@ public class FinalProject extends Application {
         return instance;
     }
 
-    private List<Car> cars;
-    private CarUpdateService updateService;
+    private Database database;
+    private ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private List<Car> cars = Collections.synchronizedList(new ArrayList<>());
 
     private Stage primaryStage;
     private BorderPane pane;
 
     private ChoiceBox<User> userOption;
 
+    public Runnable updateCallback;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         instance = this;
+        database = new Database();
+        database.connect();
         this.primaryStage = primaryStage;
         pane = new BorderPane();
 
@@ -71,54 +80,52 @@ public class FinalProject extends Application {
         pane.setTop(userSelection);
 
         //Build the scene
-        Scene scene = new Scene(pane, 780, 640);
+        Scene scene = new Scene(pane, 780, 540);
 
         primaryStage.setTitle("Rental Cars");
         primaryStage.setScene(scene);
         primaryStage.show();
+        primaryStage.setOnCloseRequest(event -> System.exit(1));
 
         //Load cars
-        updateService = new CarUpdateService();
-
-        updateService.setOnFailed(event -> {
-            cars = null;
-            updateService.reset();
-            updatePane();
-        });
-
-        updateService.setOnSucceeded(event -> {
-            cars = updateService.getValue();
-            updateService.reset();
-            updatePane();
-        });
-
         loadCars();
+    }
+
+    public ExecutorService getExecutorService(){
+        return executorService;
+    }
+
+    public <T> T executeSync(Callable<T> task){
+        try{
+            return executorService.submit(task).get();
+        } catch(InterruptedException | ExecutionException e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public Stage getPrimaryStage(){
         return primaryStage;
     }
 
+    public Database getDatabase(){
+        return database;
+    }
+
     public List<Car> getCars(){
         return cars;
     }
 
-    public CarUpdateService getUpdateService(){
-        return updateService;
-    }
-
     public void updatePane(){
-        User user = userOption.getValue();
-
-        if(user instanceof Employee){
-            ((Employee) user).updateCarsPane();
+        if(updateCallback != null){
+            updateCallback.run();
         }
     }
 
     public void loadCars(){
-        if(!updateService.isRunning()){
-            updateService.start();
-        }
+        executeSync(new LoadCarsTask());
+        updatePane();
     }
 
     public static Label label(String text, int size){
@@ -141,5 +148,16 @@ public class FinalProject extends Application {
         button.setTextFill(Color.WHITE);
         button.setOnAction(action);
         return button;
+    }
+
+    public Car getCar(int id){
+        if(cars == null){
+            return null;
+        }
+
+        return cars.stream()
+                .filter(car -> car.getCarId() == id)
+                .findAny()
+                .orElse(null);
     }
 }

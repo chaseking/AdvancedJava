@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import me.chaseking.advancedjava.finalproject.FinalProject;
 import me.chaseking.advancedjava.finalproject.SimpleObservableObject;
-import me.chaseking.advancedjava.finalproject.pane.EditCarPane;
+import me.chaseking.advancedjava.finalproject.pane.ManageCarPane;
 
 import java.util.function.Supplier;
 
@@ -30,7 +30,7 @@ public abstract class Car extends Pane {
     private final CarType type;
 
     private CarStatus status = CarStatus.AVAILABLE;
-    private String rentedTo;
+    private RentInfo rent;
 
     private Rectangle rectangle;
     private Rectangle topBar;
@@ -60,7 +60,7 @@ public abstract class Car extends Pane {
         VBox infoBox = new VBox(5,
                 FinalProject.label("Type: " + type.getName(), 12),
                 labelStatus = FinalProject.label("Status: " + status.getName(), 12),
-                labelRentedTo = FinalProject.label(rentedTo != null ? "Rented to: " + rentedTo : "", 12)
+                labelRentedTo = FinalProject.label(rent != null ? "Rented to: " + rent.getName() : "", 12)
                 );
 
         infoBox.setAlignment(Pos.TOP_LEFT);
@@ -100,7 +100,7 @@ public abstract class Car extends Pane {
             stage.setResizable(false);
             stage.setTitle("Editing Car #" + id);
 
-            Scene scene = new Scene(new EditCarPane(stage, this), EditCarPane.WIDTH, EditCarPane.HEIGHT);
+            Scene scene = new Scene(new ManageCarPane(stage, this), ManageCarPane.WIDTH, ManageCarPane.HEIGHT);
 
             stage.setScene(scene);
             stage.show();
@@ -123,17 +123,17 @@ public abstract class Car extends Pane {
         return status;
     }
 
-    public String getRentedTo(){
-        return rentedTo;
+    public RentInfo getRent(){
+        return rent;
     }
 
-    public void setRentedTo(String rentedTo){
-        this.rentedTo = rentedTo;
-        this.status = rentedTo == null ? CarStatus.AVAILABLE : CarStatus.RENTED;
+    public void setRent(RentInfo rent){
+        this.rent = rent;
+        this.status = rent == null ? CarStatus.AVAILABLE : CarStatus.RENTED;
         rectangle.setFill(status.getColor());
         topBar.setFill(status.getColor().darker());
         labelStatus.setText("Status: " + status.getName());
-        labelRentedTo.setText(rentedTo != null ? "Rented to: " + rentedTo : "");
+        labelRentedTo.setText(rent != null ? "Rented to: " + rent.getName() : "");
         //FinalProject.get().updatePane();
     }
 

@@ -1,11 +1,60 @@
 package me.chaseking.advancedjava;
 
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
 /**
  * @author Chase King
  */
 public class Testing {
     public static void main(String[] args){
 
+    }
+
+    public static void encryptFiles(String[] args){
+        if(args.length == 2){
+            try(BufferedInputStream in = new BufferedInputStream(new FileInputStream(args[0]));
+                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(args[1]))){
+                int data;
+
+                while((data = in.read()) != -1){
+                    out.write(data + 5);
+                }
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Please input source file and target file!");
+        }
+    }
+
+    public static void numberOccurrences(String[] args){
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter numbers and enter 0 when finished: ");
+
+        Map<Integer, Integer> occurrences = new HashMap<>();
+        int input;
+
+        while((input = scanner.nextInt()) != 0){
+            if(occurrences.containsKey(input)){
+                occurrences.put(input, occurrences.get(input) + 1);
+            } else{
+                occurrences.put(input, 1);
+            }
+        }
+
+        //Get the highest occurrence
+        int max = Collections.max(occurrences.values());
+
+        for(Map.Entry<Integer, Integer> entry : occurrences.entrySet()){
+            if(entry.getValue() == max){
+                System.out.println("Number " + entry.getKey() + " occurred " + entry.getValue() + " time" + (entry.getValue() == 1 ? "" : "s") + ".");
+            }
+        }
     }
 
     //System.out.println(getHint("HARPS", "HEART"));

@@ -18,7 +18,7 @@ public class CarsPaneTextBox extends Pane {
     public static final CarsPaneTextBox NONE_TO_SHOW = new CarsPaneTextBox("No cars to show!", 16, Color.GRAY);
     public static final CarsPaneTextBox FAILED = new CarsPaneTextBox("Failed to load cars!", 16, FinalProject.RED);
 
-    public CarsPaneTextBox(String text, int size, Paint fill){
+    private CarsPaneTextBox(String text, int size, Paint fill){
         Rectangle rectangle = new Rectangle(0, 0, Car.WIDTH, Car.HEIGHT / 2);
 
         rectangle.setFill(fill);

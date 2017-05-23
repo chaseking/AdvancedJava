@@ -1,6 +1,9 @@
 package me.chaseking.advancedjava;
 
 import me.chaseking.advancedjava.finalproject.FinalProject;
+import me.chaseking.advancedjava.labs.lab14.Lab14;
+import me.chaseking.advancedjava.labs.lab14.Lab14_Client;
+import me.chaseking.advancedjava.labs.lab14.Lab14_Server;
 
 import java.util.Random;
 
@@ -10,7 +13,7 @@ import java.util.Random;
 public class Main {
     public static final Random RANDOM = new Random();
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception {
         //Assignment0.main(args);
         //Lab1.run();
         //Assignment1.main(args);
@@ -29,7 +32,19 @@ public class Main {
         //Lab7.main(args);
         //Midterm.main(args);
         //Assignment8.main(args);
-        FinalProject.main(args);
+        //Lab9.main(args);
+        //Assignment9.main(args);
+        //Lab10.main(args);
+        //Assignment10.main(args);
+        //Assignment11.main(args);
+        //Lab12.main(args);
+        //Assignment12.main(args);
+        //Lab13.main(args);
+        //Assignment13.main(args);
+        //Lab14_Server.main(args);
+        //Lab14_Client.main(args);
+
+        //FinalProject.main(args);
         //Testing.main(args);
     }
 
@@ -59,5 +74,23 @@ public class Main {
 
     public static String formatDouble(double value){
         return String.format("%.2f", value);
+    }
+
+    public static void awaitTermination(){
+        while(Thread.interrupted()){
+            try{
+                Thread.sleep(100);
+            } catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void sleep(long millis){
+        try{
+            Thread.sleep(millis);
+        } catch(InterruptedException e){
+            e.printStackTrace();
+        }
     }
 }

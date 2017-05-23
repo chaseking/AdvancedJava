@@ -12,13 +12,14 @@ import javafx.stage.Stage;
 import me.chaseking.advancedjava.finalproject.FinalProject;
 import me.chaseking.advancedjava.finalproject.car.Car;
 import me.chaseking.advancedjava.finalproject.car.CarType;
+import me.chaseking.advancedjava.finalproject.car.RentInfo;
 
 /**
  * @author Chase King
  */
 public class AddCarPane extends BorderPane {
     public static final int WIDTH = 420;
-    public static final int HEIGHT = 190;
+    public static final int HEIGHT = 220;
 
     private ComboBox<CarType> carType;
     private TextField rentedTo;
@@ -34,9 +35,16 @@ public class AddCarPane extends BorderPane {
         grid.setHgap(10);
         grid.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, new CornerRadii(5), BorderStroke.MEDIUM)));
         grid.setAlignment(Pos.TOP_CENTER);
+        int row = 0;
+        int id = FinalProject.get().getDatabase().getNextId();
 
-        grid.add(FinalProject.label("Car type:"), 0, 0);
-        grid.add(carType = new ComboBox<>(), 1, 0);
+        grid.add(FinalProject.label("ID:"), 0, row);
+        TextField idField = new TextField(String.valueOf(id));
+        idField.setEditable(false);
+        grid.add(idField, 1, row);
+
+        grid.add(FinalProject.label("Car type:"), 0, ++row);
+        grid.add(carType = new ComboBox<>(), 1, row);
 
         for(CarType type : CarType.values()){
             carType.getItems().add(type);
@@ -44,19 +52,21 @@ public class AddCarPane extends BorderPane {
 
         carType.setValue(carType.getItems().get(0));
 
-        grid.add(FinalProject.label("Rented to:"), 0, 1);
-        grid.add(rentedTo = new TextField(), 1, 1);
+        grid.add(FinalProject.label("Rented to:"), 0, ++row);
+        grid.add(rentedTo = new TextField(), 1, row);
         rentedTo.setPromptText("Leave blank for none.");
 
         //Add button
         Button addButton = FinalProject.button("Add Car", event -> {
             CarType type = carType.getValue();
-            Car car = type.createNew();
+            Car car = type.createNew(id);
 
             if(rentedTo.getText() != null && !rentedTo.getText().isEmpty()){
-                car.setRentedTo(rentedTo.getText());
+                car.setRent(new RentInfo(rentedTo.getText()));
             }
 
+            FinalProject.get().getDatabase().addCar(car);
+            FinalProject.get().loadCars();
             stage.close();
         });
 

@@ -2,11 +2,12 @@ package me.chaseking.advancedjava.finalproject.user;
 
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import me.chaseking.advancedjava.finalproject.utils.PaneHolder;
 
 /**
  * @author Chase King
  */
-public abstract class User {
+public abstract class User implements PaneHolder {
     protected static final Border BORDER = new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, new CornerRadii(5), BorderStroke.MEDIUM));
 
     private final String name;
@@ -23,6 +24,4 @@ public abstract class User {
     public String toString(){
         return name;
     }
-
-    public abstract Pane getPane();
 }

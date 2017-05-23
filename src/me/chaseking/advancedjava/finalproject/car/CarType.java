@@ -5,6 +5,8 @@ import me.chaseking.advancedjava.finalproject.car.type.Convertible;
 import me.chaseking.advancedjava.finalproject.car.type.LuxuryCar;
 import me.chaseking.advancedjava.finalproject.car.type.Minivan;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +52,19 @@ public enum CarType implements CarFilter {
     @Override
     public boolean willShow(Car car){
         return car.getType() == this;
+    }
+
+    public static Car createNew(ResultSet rs) throws SQLException {
+        try{
+            int id = rs.getInt("id");
+            CarType type = valueOf(rs.getString("type").toUpperCase());
+
+            return type.createNew(id);
+        } catch(SQLException e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public Car createNew(int id){
